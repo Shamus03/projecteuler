@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      .hljs {
+        overflow-y: auto;
+        resize: vertical;
+      }
+      .hljs[style*=" height"] {
+        max-height: unset !important;
+      }
+    </style>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.0.1/styles/default.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.0.1/highlight.min.js"></script>
+  </head>
+  <body>
+    <div>
+      Problem:
+      <select id="selectProblem">
+      </select>
+    </div>
+    <br>
+
+    <div>
+      <a id="prompt" target="_blank">Prompt</a>
+    </div>
+    <br>
+
+    <div>
+      Code:
+      <pre><code id="code" class="language-javascript hljs" style="max-height: 600px;"></code></pre>
+    </div>
+    <br>
+
+    <div>
+      Output:
+      <pre><code id="output" class="language-plaintext hljs" style="max-height: 300px;"></code></pre>
+    </div>
+
+    <div id="status"></div>
+
+    <script>
+      const q = new URLSearchParams(window.location.search)
+      const p = q.get('p') || 1
+
+      document.getElementById('prompt').href = 'https://projecteuler.net/problem=' + p
+
+      const selectProblem = document.getElementById('selectProblem')
+      for (let i = 1; i <= 43; i++) {
+        const option = document.createElement('option')
+        option.innerText = i
+        option.value = i
+        selectProblem.appendChild(option)
+      }
+      selectProblem.value = p
+      selectProblem.onchange = () => {
+        window.location = '?p='+selectProblem.value
+      }
+
+      (async () => {
+        const scriptUrl = `solutions/problem${p}.js`
+
+        const resp = await fetch(scriptUrl)
+        const code = await resp.text()
+        document.getElementById('code').innerHTML = hljs.highlight(code, { language: 'javascript' }).value
+
+        const output = document.getElementById('output')
+        const status = document.getElementById('status')
+
+        const w = new Worker('worker.js')
+        w.postMessage(scriptUrl)
+        w.onmessage = msg => {
+          switch (msg.data.type) {
+            case 'start':
+              status.innerText = 'Running...'
+              break
+            case 'error':
+              status.innerText = 'Error: ' + msg.data.error
+              break
+            case 'done':
+              status.innerText = 'Finished'
+              break
+            case 'output':
+              output.innerHTML += msg.data.msg.toString()
+              output.scrollTo(0, output.scrollHeight)
+              break
+          }
+        }
+      })()
+    </script>
+  </body>
+</html>
