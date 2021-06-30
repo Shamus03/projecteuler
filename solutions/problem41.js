@@ -41,7 +41,7 @@ const isPrime = n => {
   return true
 }
 
-for (let i = 9; i >= 1; i--) {
+i: for (let i = 9; i >= 1; i--) {
   for (const p of generatePermutations(
     new Array(i)
       .fill(0)
@@ -50,7 +50,7 @@ for (let i = 9; i >= 1; i--) {
   )) {
     if (isPrime(+p.join(''))) {
       console.log(+p.join(''))
-      return
+      break i
     }
   }
 }

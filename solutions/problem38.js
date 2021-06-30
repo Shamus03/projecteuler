@@ -17,13 +17,13 @@ const isPandigital = n => {
   return true
 }
 
-for (let i = 100000; i >= 1; i--) {
+i: for (let i = 100000; i >= 1; i--) {
   let r = ''
   for (let j = 1; j < 5; j++) {
     r += i * j
     if (j > 1 && isPandigital(+r)) {
       console.log(r)
-      return
+      break i
     }
   }
 }
