@@ -1,6 +1,12 @@
+---
+---
+
 <!DOCTYPE html>
 <html>
   <head>
+    <title>
+      Project Euler
+    </title>
     <style>
       .hljs {
         overflow-y: auto;
@@ -45,8 +51,16 @@
 
       document.getElementById('prompt').href = 'https://projecteuler.net/problem=' + p
 
+      const problemNumbers = [
+      {%- for s in site.static_files -%}
+      {%- if s.extname == '.js' and s.path contains '/solutions/' -%}
+        '{{ s.name }}',
+      {%- endif -%}
+      {%- endfor -%}
+      ].map(s => +/problem(\d+)\.js/.exec(s)[1]).sort((a, b) => a - b)
+
       const selectProblem = document.getElementById('selectProblem')
-      for (let i = 1; i <= 43; i++) {
+      for (const i of problemNumbers) {
         const option = document.createElement('option')
         option.innerText = i
         option.value = i
